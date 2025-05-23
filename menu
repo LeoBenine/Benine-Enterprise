@@ -1,0 +1,471 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace ControleGerencial
+{
+    // --- 1. Classe Pessoa ---
+    public class Pessoa
+    {
+        public int Id { get; set; }
+        public string Nome { get; set; }
+        public string Email { get; set; }
+        public string Telefone { get; set; }
+
+        public Pessoa(int id, string nome, string email, string telefone)
+        {
+            Id = id;
+            Nome = nome;
+            Email = email;
+            Telefone = telefone;
+        }
+
+        public void ExibirDetalhes()
+        {
+            Console.WriteLine($"ID: {Id}, Nome: {Nome}, Email: {Email}, Telefone: {Telefone}");
+        }
+    }
+
+    // --- 2. Classe Gasto ---
+    public class Gasto
+    {
+        public int Id { get; set; }
+        public string Descricao { get; set; }
+        public decimal Valor { get; set; }
+        public DateTime Data { get; set; }
+        public string TipoGasto { get; set; } // "Semanal" ou "Mensal"
+
+        public Gasto(int id, string descricao, decimal valor, DateTime data, string tipoGasto)
+        {
+            Id = id;
+            Descricao = descricao;
+            Valor = valor;
+            Data = data;
+            TipoGasto = tipoGasto;
+        }
+
+        public void ExibirDetalhes()
+        {
+            Console.WriteLine($"ID: {Id}, Descrição: {Descricao}, Valor: {Valor:C}, Data: {Data.ToShortDateString()}, Tipo: {TipoGasto}");
+        }
+    }
+
+    // --- 3. Classe Produto ---
+    public class Produto
+    {
+        public int Id { get; set; }
+        public string Nome { get; set; }
+        public int Quantidade { get; set; }
+        public decimal PrecoUnitario { get; set; }
+
+        public Produto(int id, string nome, int quantidade, decimal precoUnitario)
+        {
+            Id = id;
+            Nome = nome;
+            Quantidade = quantidade;
+            PrecoUnitario = precoUnitario;
+        }
+
+        public void ExibirDetalhes()
+        {
+            Console.WriteLine($"ID: {Id}, Nome: {Nome}, Quantidade: {Quantidade}, Preço Unitário: {PrecoUnitario:C}");
+        }
+
+        public void AdicionarEstoque(int quantidade)
+        {
+            if (quantidade > 0)
+            {
+                Quantidade += quantidade;
+                Console.WriteLine($"Estoque de {Nome} atualizado. Nova quantidade: {Quantidade}");
+            }
+            else
+            {
+                Console.WriteLine("A quantidade a adicionar deve ser maior que zero.");
+            }
+        }
+
+        public void RemoverEstoque(int quantidade)
+        {
+            if (quantidade > 0)
+            {
+                if (Quantidade >= quantidade)
+                {
+                    Quantidade -= quantidade;
+                    Console.WriteLine($"Estoque de {Nome} atualizado. Nova quantidade: {Quantidade}");
+                }
+                else
+                {
+                    Console.WriteLine($"Quantidade insuficiente em estoque para {Nome}. Disponível: {Quantidade}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("A quantidade a remover deve ser maior que zero.");
+            }
+        }
+    }
+
+    // --- 4. Classe Sistema (Main Program Logic) ---
+    public class Sistema
+    {
+        private List<Pessoa> pessoas = new List<Pessoa>();
+        private List<Gasto> gastos = new List<Gasto>();
+        private List<Produto> produtos = new List<Produto>();
+
+        private int proximoIdPessoa = 1;
+        private int proximoIdGasto = 1;
+        private int proximoIdProduto = 1;
+
+        public void MenuPrincipal()
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("--- Sistema de Gerenciamento ---");
+                Console.WriteLine("1. Cadastro de Pessoas");
+                Console.WriteLine("2. Controle de Gastos");
+                Console.WriteLine("3. Controle de Estoque");
+                Console.WriteLine("4. Sair");
+                Console.Write("Escolha uma opção: ");
+
+                string opcao = Console.ReadLine();
+
+                switch (opcao)
+                {
+                    case "1":
+                        MenuPessoas();
+                        break;
+                    case "2":
+                        MenuGastos();
+                        break;
+                    case "3":
+                        MenuEstoque();
+                        break;
+                    case "4":
+                        Console.WriteLine("Saindo do sistema. Até mais!");
+                        return;
+                    default:
+                        Console.WriteLine("Opção inválida. Tente novamente.");
+                        Console.ReadKey();
+                        break;
+                }
+            }
+        }
+
+        private void MenuPessoas()
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("--- Cadastro de Pessoas ---");
+                Console.WriteLine("1. Adicionar Pessoa");
+                Console.WriteLine("2. Listar Pessoas");
+                Console.WriteLine("3. Voltar ao Menu Principal");
+                Console.Write("Escolha uma opção: ");
+
+                string opcao = Console.ReadLine();
+
+                switch (opcao)
+                {
+                    case "1":
+                        AdicionarPessoa();
+                        break;
+                    case "2":
+                        ListarPessoas();
+                        break;
+                    case "3":
+                        return;
+                    default:
+                        Console.WriteLine("Opção inválida. Tente novamente.");
+                        Console.ReadKey();
+                        break;
+                }
+            }
+        }
+
+        private void AdicionarPessoa()
+        {
+            Console.Write("Nome: ");
+            string nome = Console.ReadLine();
+            Console.Write("Email: ");
+            string email = Console.ReadLine();
+            Console.Write("Telefone: ");
+            string telefone = Console.ReadLine();
+
+            Pessoa novaPessoa = new Pessoa(proximoIdPessoa++, nome, email, telefone);
+            pessoas.Add(novaPessoa);
+            Console.WriteLine("Pessoa cadastrada com sucesso!");
+            Console.ReadKey();
+        }
+
+        private void ListarPessoas()
+        {
+            Console.Clear();
+            Console.WriteLine("--- Pessoas Cadastradas ---");
+            if (pessoas.Any())
+            {
+                foreach (var pessoa in pessoas)
+                {
+                    pessoa.ExibirDetalhes();
+                }
+            }
+            else
+            {
+                Console.WriteLine("Nenhuma pessoa cadastrada ainda.");
+            }
+            Console.ReadKey();
+        }
+
+        private void MenuGastos()
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("--- Controle de Gastos ---");
+                Console.WriteLine("1. Adicionar Gasto");
+                Console.WriteLine("2. Listar Gastos Semanais");
+                Console.WriteLine("3. Listar Gastos Mensais");
+                Console.WriteLine("4. Voltar ao Menu Principal");
+                Console.Write("Escolha uma opção: ");
+
+                string opcao = Console.ReadLine();
+
+                switch (opcao)
+                {
+                    case "1":
+                        AdicionarGasto();
+                        break;
+                    case "2":
+                        ListarGastos("Semanal");
+                        break;
+                    case "3":
+                        ListarGastos("Mensal");
+                        break;
+                    case "4":
+                        return;
+                    default:
+                        Console.WriteLine("Opção inválida. Tente novamente.");
+                        Console.ReadKey();
+                        break;
+                }
+            }
+        }
+
+        private void AdicionarGasto()
+        {
+            Console.Write("Descrição do Gasto: ");
+            string descricao = Console.ReadLine();
+
+            decimal valor;
+            Console.Write("Valor do Gasto: ");
+            while (!decimal.TryParse(Console.ReadLine(), out valor) || valor <= 0)
+            {
+                Console.WriteLine("Valor inválido. Digite um número positivo.");
+                Console.Write("Valor do Gasto: ");
+            }
+
+            DateTime data;
+            Console.Write("Data do Gasto (dd/mm/aaaa): ");
+            while (!DateTime.TryParse(Console.ReadLine(), out data))
+            {
+                Console.WriteLine("Data inválida. Digite no formato dd/mm/aaaa.");
+                Console.Write("Data do Gasto (dd/mm/aaaa): ");
+            }
+
+            string tipoGasto;
+            Console.Write("Tipo de Gasto (Semanal/Mensal): ");
+            tipoGasto = Console.ReadLine();
+            while (tipoGasto.ToLower() != "semanal" && tipoGasto.ToLower() != "mensal")
+            {
+                Console.WriteLine("Tipo de gasto inválido. Digite 'Semanal' ou 'Mensal'.");
+                Console.Write("Tipo de Gasto (Semanal/Mensal): ");
+                tipoGasto = Console.ReadLine();
+            }
+
+            Gasto novoGasto = new Gasto(proximoIdGasto++, descricao, valor, data, tipoGasto);
+            gastos.Add(novoGasto);
+            Console.WriteLine("Gasto registrado com sucesso!");
+            Console.ReadKey();
+        }
+
+        private void ListarGastos(string tipo)
+        {
+            Console.Clear();
+            Console.WriteLine($"--- Gastos {tipo}s ---");
+            var gastosFiltrados = gastos.Where(g => g.TipoGasto.Equals(tipo, StringComparison.OrdinalIgnoreCase)).ToList();
+
+            if (gastosFiltrados.Any())
+            {
+                foreach (var gasto in gastosFiltrados)
+                {
+                    gasto.ExibirDetalhes();
+                }
+                Console.WriteLine($"\nTotal de Gastos {tipo}s: {gastosFiltrados.Sum(g => g.Valor):C}");
+            }
+            else
+            {
+                Console.WriteLine($"Nenhum gasto {tipo} registrado ainda.");
+            }
+            Console.ReadKey();
+        }
+
+        private void MenuEstoque()
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("--- Controle de Estoque ---");
+                Console.WriteLine("1. Adicionar Produto");
+                Console.WriteLine("2. Listar Produtos");
+                Console.WriteLine("3. Adicionar Estoque (Produto Existente)");
+                Console.WriteLine("4. Remover Estoque (Produto Existente)");
+                Console.WriteLine("5. Voltar ao Menu Principal");
+                Console.Write("Escolha uma opção: ");
+
+                string opcao = Console.ReadLine();
+
+                switch (opcao)
+                {
+                    case "1":
+                        AdicionarProduto();
+                        break;
+                    case "2":
+                        ListarProdutos();
+                        break;
+                    case "3":
+                        AdicionarEstoqueProdutoExistente();
+                        break;
+                    case "4":
+                        RemoverEstoqueProdutoExistente();
+                        break;
+                    case "5":
+                        return;
+                    default:
+                        Console.WriteLine("Opção inválida. Tente novamente.");
+                        Console.ReadKey();
+                        break;
+                }
+            }
+        }
+
+        private void AdicionarProduto()
+        {
+            Console.Write("Nome do Produto: ");
+            string nome = Console.ReadLine();
+
+            int quantidade;
+            Console.Write("Quantidade Inicial: ");
+            while (!int.TryParse(Console.ReadLine(), out quantidade) || quantidade < 0)
+            {
+                Console.WriteLine("Quantidade inválida. Digite um número inteiro não negativo.");
+                Console.Write("Quantidade Inicial: ");
+            }
+
+            decimal precoUnitario;
+            Console.Write("Preço Unitário: ");
+            while (!decimal.TryParse(Console.ReadLine(), out precoUnitario) || precoUnitario <= 0)
+            {
+                Console.WriteLine("Preço inválido. Digite um número positivo.");
+                Console.Write("Preço Unitário: ");
+            }
+
+            Produto novoProduto = new Produto(proximoIdProduto++, nome, quantidade, precoUnitario);
+            produtos.Add(novoProduto);
+            Console.WriteLine("Produto cadastrado com sucesso!");
+            Console.ReadKey();
+        }
+
+        private void ListarProdutos()
+        {
+            Console.Clear();
+            Console.WriteLine("--- Produtos em Estoque ---");
+            if (produtos.Any())
+            {
+                foreach (var produto in produtos)
+                {
+                    produto.ExibirDetalhes();
+                }
+            }
+            else
+            {
+                Console.WriteLine("Nenhum produto em estoque ainda.");
+            }
+            Console.ReadKey();
+        }
+
+        private void AdicionarEstoqueProdutoExistente()
+        {
+            Console.Write("ID do Produto para adicionar estoque: ");
+            int id;
+            if (int.TryParse(Console.ReadLine(), out id))
+            {
+                Produto produto = produtos.FirstOrDefault(p => p.Id == id);
+                if (produto != null)
+                {
+                    int quantidade;
+                    Console.Write($"Quantas unidades adicionar ao estoque de {produto.Nome}?: ");
+                    if (int.TryParse(Console.ReadLine(), out quantidade))
+                    {
+                        produto.AdicionarEstoque(quantidade);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Quantidade inválida.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Produto não encontrado.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("ID inválido.");
+            }
+            Console.ReadKey();
+        }
+
+        private void RemoverEstoqueProdutoExistente()
+        {
+            Console.Write("ID do Produto para remover estoque: ");
+            int id;
+            if (int.TryParse(Console.ReadLine(), out id))
+            {
+                Produto produto = produtos.FirstOrDefault(p => p.Id == id);
+                if (produto != null)
+                {
+                    int quantidade;
+                    Console.Write($"Quantas unidades remover do estoque de {produto.Nome}?: ");
+                    if (int.TryParse(Console.ReadLine(), out quantidade))
+                    {
+                        produto.RemoverEstoque(quantidade);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Quantidade inválida.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Produto não encontrado.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("ID inválido.");
+            }
+            Console.ReadKey();
+        }
+    }
+
+
+    // --- Main Entry Point ---
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Sistema sistema = new Sistema();
+            sistema.MenuPrincipal();
+        }
+    }
+}
